@@ -91,7 +91,7 @@ public class NonUniformQuantizer {
         
         LBG_Algorithm_with_Splitting obj = new LBG_Algorithm_with_Splitting(numOfBits);
         
-        int [][]matrix =  readImage("123.jpg");
+        int [][]matrix =  readImage("Original_Photo.jpg");
         obj.original_img(matrix);
  
         obj.splitFirstMatrix(matrix);
