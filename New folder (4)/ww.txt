@@ -1,0 +1,181 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package nonuniformquantizer;
+
+import java.util.Vector;
+
+/**
+ *
+ * @author Youssef Khaled
+ */
+public class LBG_Algorithm_with_Splitting {
+
+    private final int numOfBits;
+    
+    LBG_Algorithm_with_Splitting(int numOfBits)
+    {
+        this.numOfBits = numOfBits;
+    }
+    Vector outter = new Vector();
+    Vector <Integer> finalAvg = new Vector<Integer>();
+    Vector <Integer> finalRange = new Vector<Integer>();
+    
+    public int getFirstAvg(int [][]matrix)
+    {
+        int rows = matrix.length;
+        int cols = matrix[0].length ;
+        int total = 0;
+        for (int i = 0; i < rows;i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                total += matrix[i][j];
+            }
+        }
+        return (total/(rows*cols))+1;
+    }
+    
+    public int getStandardAvg (Vector <Integer> list)
+    {
+        int total = 0;
+        for (int i = 0; i < list.size(); i++)
+        {
+            total += list.get(i);
+        }
+        if ( list.size() == 0)
+        {
+        	return 0;
+        }
+        return total/list.size();
+    }
+    
+    public void splitFirstMatrix (int [][]matrix)
+    {
+        int rows = matrix.length;
+        int cols = matrix[0].length ;
+        int avg = getFirstAvg(matrix);
+        Vector <Integer> rightVector = new Vector();
+        Vector <Integer> leftVector = new Vector();
+        for (int i = 0; i < rows;i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if (matrix[i][j] >= avg-1)
+                {
+                    rightVector.add(matrix[i][j]);
+                }
+                else
+                {
+                    leftVector.add(matrix[i][j]);
+                }
+            }
+        }
+        outter.add(rightVector);
+        outter.add(leftVector);
+        
+    }
+    
+    public void standardSplit (Vector <Integer> list)
+    {
+        int avg = getStandardAvg(list);
+        if (avg == 0)
+        {
+        	return;
+        }
+        int right = avg - 1;
+        Vector <Integer> rightVector = new Vector();
+        Vector <Integer> leftVector = new Vector();
+        for (int i = 0; i < list.size();i++)
+        {
+            if (list.get(i) <= right)
+            {
+                rightVector.add(list.get(i));
+            }
+            else
+            {
+                leftVector.add(list.get(i));
+            }
+            
+        }
+        //if (rightVector.size() != 0)
+        outter.add(rightVector);
+        //if (leftVector.size() != 0)
+        outter.add(leftVector);
+    }
+    
+    public void storeFinalAvgs()
+    {
+        for (int i = 0; i < outter.size(); i++)
+        {
+            Vector tmp = new Vector();
+            tmp = (Vector) outter.get(i);
+            int avg = getStandardAvg (tmp);
+            finalAvg.add(avg);
+        }
+    }
+    
+    public int getMax(int [][]matrix)
+    {
+        int rows = matrix.length;
+        int cols = matrix[0].length ;
+        int max = 0;
+        for (int i = 0; i < rows;i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if (matrix[i][j] > max)
+                {
+                    max = matrix[i][j];
+                }
+            }
+        }
+        return max;
+    }
+    
+    public void buildRange (int [][]matrix)
+    {
+        for (int i = 0; i < finalAvg.size()-1; i++)
+        {
+            int range = (finalAvg.get(i)+finalAvg.get(i+1))/2;
+            finalRange.add(range);
+        }
+        int max = getMax(matrix);
+        finalRange.add(max);
+    }
+    
+    public int findRange(int number)
+    {
+        for (int i = 0; i < finalRange.size(); i++)
+        {
+            if (number < finalRange.get(i))
+            {
+                return finalAvg.get(i);
+            }
+        }
+        return 0;
+    }
+    
+    public void bulidNewMatrix(int [][]oldMatrix, int [][]newMatrix)
+    {
+        int rows = oldMatrix.length;
+        int cols = oldMatrix[0].length ;
+        for (int i = 0; i < rows;i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                newMatrix[i][j]=0;
+            }
+        }
+         for (int i = 0; i < rows;i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                newMatrix[i][j]=findRange(oldMatrix[i][j]);
+            }
+        }
+        
+    }
+}
